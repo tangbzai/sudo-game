@@ -1,34 +1,29 @@
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
 import styles from './App.module.css'
+import { getSudoProblem } from './utils/sudo'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [sudoProblem, setSudoProblem] = useState<(number | null)[][]>(
+    new Array(9).fill(new Array(9).fill(null))
+  )
   useEffect(() => {
-    console.log(1)
+    // 获取题目
+    const t = new Date()
+    const sudoProblem = getSudoProblem()
+    console.log('生成耗时：', Date.now() - t.getTime(), 'ms')
+    setSudoProblem(sudoProblem)
+    console.log(sudoProblem)
+    // sudoProblem.map((item, index) => console.log(index + 1, item))
   }, [])
   return (
-    <div className={styles.App}>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className={styles.logo} alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className={`${styles.logo} ${styles.react}`} alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className={styles.card}>
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className={styles.readTheDocs}>
-        Click on the Vite and React logos to learn more
-      </p>
+    <div className={styles.app}>
+      {sudoProblem.map((row, rowIndex) =>
+        row.map((num, columnIndex) => (
+          <div key={rowIndex + columnIndex} className={styles.unit} contentEditable={!num}>
+            {num}
+          </div>
+        ))
+      )}
     </div>
   )
 }
