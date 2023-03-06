@@ -19,7 +19,11 @@ function App() {
     <div className={styles.app}>
       {sudoProblem.map((row, rowIndex) =>
         row.map((num, columnIndex) => (
-          <div key={rowIndex + columnIndex} className={styles.unit} contentEditable={!num}>
+          <div
+            key={`${rowIndex}-${columnIndex}`}
+            className={styles.unit}
+            contentEditable={!num}
+          >
             {num}
           </div>
         ))
