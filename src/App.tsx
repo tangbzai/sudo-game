@@ -4,18 +4,23 @@ import {
   getSudoProblem,
   getUnitPossible,
   SudoIndex,
+  sudoProblemCopy,
   SudoProblemType,
   SudoValue,
 } from './utils/sudo'
 
 function App() {
+  // 数独题目
   const [sudoProblem, setSudoProblem] = useState<SudoProblemType>(
     new Array(9).fill(new Array(9).fill(undefined))
   )
+  // 正在展示的数独
   const [showSudo, setShowSudo] = useState<SudoProblemType>(
     new Array(9).fill(new Array(9).fill(undefined))
   )
-  const [heightLightNum, setHeightLightNum] = useState<number>()
+  // 当前选中的位置
+  const [currentPosition, setCurrentPosition] =
+    useState<[SudoIndex, SudoIndex]>()
   useEffect(() => {
     // 获取题目
     const t = new Date()
@@ -23,43 +28,65 @@ function App() {
     console.log('生成耗时：', Date.now() - t.getTime(), 'ms')
     setSudoProblem(sudoProblem)
     setShowSudo(sudoProblem)
-    console.log(sudoProblem)
-    // sudoProblem.map((item, index) => console.log(index + 1, item))
   }, [])
 
+  const [y, x] = currentPosition || []
+  const heightLightNum =
+    typeof y === 'number' && typeof x === 'number'
+      ? showSudo[y][x] ?? undefined
+      : undefined
   return (
-    <div className={styles.app}>
-      {showSudo.map((row, rowIndex) =>
-        row.map((num, columnIndex) => {
-          const [y, x] = [rowIndex, columnIndex] as [SudoIndex, SudoIndex]
-          return (
-            <div
-              key={`${y}-${x}`}
-              className={`${styles.unit} ${
-                heightLightNum === num ? styles.heightLight : ''
-              }`}
-              contentEditable={!sudoProblem[y][x]}
-              onBlur={(e) => {
-                const text = Number(e.target.innerText)
-                const textNum = (
-                  Number.isNaN(text) ? null : text < 1 || text > 9 ? null : text
-                ) as SudoValue
-                const newProblem = showSudo.map((item) => [...item])
-                newProblem[y][x] = textNum
-                setShowSudo(newProblem)
-              }}
-              onClick={(e) => {
-                // @ts-expect-error
-                const text = Number(e.target.innerText)
-                const textNum = Number.isNaN(text) ? undefined : text
-                setHeightLightNum(num ?? textNum ?? undefined)
-              }}
-            >
-              {num ?? <TipsBox numList={getUnitPossible(showSudo, y, x)} />}
-            </div>
-          )
-        })
-      )}
+    <div
+      className={styles.app}
+      onClick={(e) => {
+        const { target } = e
+        // @ts-expect-error
+        const { className, classList, parentElement } = target
+        console.log(
+          className,
+          styles.unit,
+          `${className}` !== `${styles.unit}`,
+          classList,
+          [...classList].includes(`${styles.unit}`)
+        )
+        if (![...classList].includes(`${styles.unit}`)) {
+          return setCurrentPosition(undefined)
+        }
+        const index = [...parentElement.children].indexOf(target as any)
+        const [targetY, targetX] = [index / 9, index % 9].map(Math.floor) as [
+          SudoIndex,
+          SudoIndex
+        ]
+        setCurrentPosition([targetY, targetX])
+      }}
+    >
+      <div className={styles.sudoProblem}>
+        {showSudo.map((row, rowIndex) =>
+          row.map((num, columnIndex) => {
+            const [ry, cx] = [rowIndex, columnIndex] as [SudoIndex, SudoIndex]
+            return (
+              <div
+                key={`${ry}-${cx}`}
+                className={`${styles.unit} ${
+                  heightLightNum === num ? styles.heightLight : ''
+                } ${y === ry && x === cx ? styles.curr : ''}`}
+              >
+                {num ?? <TipsBox numList={getUnitPossible(showSudo, ry, cx)} />}
+              </div>
+            )
+          })
+        )}
+      </div>
+      <NumberBar
+        onClick={(num) => {
+          if (typeof y !== 'number' || typeof x !== 'number') return
+          const newProblem = sudoProblemCopy(sudoProblem)
+          newProblem[y][x] = num
+          setShowSudo(newProblem)
+          // 属于题目位置不可编辑
+          if (newProblem[y][x]) return
+        }}
+      />
     </div>
   )
 }
@@ -71,17 +98,41 @@ function TipsBox(props: TipsBoxProps) {
   const numList = props.numList || []
   return (
     <div className={styles.tips}>
-      <span style={numList.includes(1) ? {} : { display: 'none' }}>1</span>
-      <span style={numList.includes(2) ? {} : { display: 'none' }}>2</span>
-      <span style={numList.includes(3) ? {} : { display: 'none' }}>3</span>
-      <span style={numList.includes(4) ? {} : { display: 'none' }}>4</span>
-      <span style={numList.includes(5) ? {} : { display: 'none' }}>5</span>
-      <span style={numList.includes(6) ? {} : { display: 'none' }}>6</span>
-      <span style={numList.includes(7) ? {} : { display: 'none' }}>7</span>
-      <span style={numList.includes(8) ? {} : { display: 'none' }}>8</span>
-      <span style={numList.includes(9) ? {} : { display: 'none' }}>9</span>
+      {new Array(9).fill(0).map((_, index) => (
+        <span
+          key={index}
+          style={
+            numList.includes((index + 1) as SudoValue)
+              ? {}
+              : { visibility: 'hidden' }
+          }
+        >
+          {index + 1}
+        </span>
+      ))}
     </div>
   )
 }
 
+interface NumberBarProps {
+  onClick?: (num: SudoValue) => void
+}
+function NumberBar(props: NumberBarProps) {
+  return (
+    <div
+      className={styles.numberBar}
+      onClick={(e) => {
+        // @ts-expect-error
+        const { innerText } = e.target
+        const num = Number(innerText) as SudoValue
+        if (Number.isNaN(num)) return
+        props.onClick?.(num)
+      }}
+    >
+      {new Array(9).fill(0).map((_, index) => (
+        <div key={index}>{index + 1}</div>
+      ))}
+    </div>
+  )
+}
 export default App

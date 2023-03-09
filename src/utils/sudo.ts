@@ -149,7 +149,7 @@ function randomChoice<T extends unknown>(list: T[]): T {
  * @param sudoProblem 数独题目
  * @returns
  */
-function sudoProblemCopy(sudoProblem: SudoProblemType) {
+export function sudoProblemCopy(sudoProblem: SudoProblemType) {
   return sudoProblem.map((rows) => rows.map((num) => num))
 }
 
