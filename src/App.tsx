@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import styles from './App.module.css'
 import {
   getSudoProblem,
@@ -30,6 +30,37 @@ function App() {
     setShowSudo(sudoProblem)
   }, [])
 
+  const editUnit = useCallback(
+    (num: SudoValue) => {
+      const [y, x] = currentPosition || []
+      if (typeof y !== 'number' || typeof x !== 'number') return
+      const newProblem = sudoProblemCopy(showSudo)
+      // 属于题目位置不可编辑
+      if (sudoProblem[y][x]) return
+      newProblem[y][x] = num
+      setShowSudo(newProblem)
+    },
+    [showSudo, sudoProblem, currentPosition]
+  )
+
+  const keydownListener = useCallback(
+    (e: KeyboardEvent) => {
+      const numKey = Number(e.key)
+      if (Number.isNaN(numKey)) return
+      if (numKey < 1 || numKey > 9) return
+      editUnit(numKey as SudoValue)
+    },
+    [editUnit]
+  )
+
+  useEffect(() => {
+    window.removeEventListener('keydown', keydownListener)
+    window.addEventListener('keydown', keydownListener)
+    return () => {
+      window.removeEventListener('keydown', keydownListener)
+    }
+  }, [keydownListener])
+
   const [y, x] = currentPosition || []
   const heightLightNum =
     typeof y === 'number' && typeof x === 'number'
@@ -41,14 +72,7 @@ function App() {
       onClick={(e) => {
         const { target } = e
         // @ts-expect-error
-        const { className, classList, parentElement } = target
-        console.log(
-          className,
-          styles.unit,
-          `${className}` !== `${styles.unit}`,
-          classList,
-          [...classList].includes(`${styles.unit}`)
-        )
+        const { classList, parentElement } = target
         if (![...classList].includes(`${styles.unit}`)) {
           return setCurrentPosition(undefined)
         }
@@ -77,16 +101,7 @@ function App() {
           })
         )}
       </div>
-      <NumberBar
-        onClick={(num) => {
-          if (typeof y !== 'number' || typeof x !== 'number') return
-          const newProblem = sudoProblemCopy(sudoProblem)
-          newProblem[y][x] = num
-          setShowSudo(newProblem)
-          // 属于题目位置不可编辑
-          if (newProblem[y][x]) return
-        }}
-      />
+      <NumberBar onClick={editUnit} />
     </div>
   )
 }
@@ -94,6 +109,7 @@ function App() {
 interface TipsBoxProps {
   numList?: SudoValue[]
 }
+
 function TipsBox(props: TipsBoxProps) {
   const numList = props.numList || []
   return (
