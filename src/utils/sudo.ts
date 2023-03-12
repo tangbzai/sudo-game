@@ -97,6 +97,13 @@ function hasUniqueUnit(rowPerspective: SudoProblemType) {
   return hasUniqueUnit === null
 }
 
+function getNotNullUnitList(rowPerspective: SudoProblemType) {
+  return rowPerspective
+    .flat(1)
+    .map((num, index) => num && { num, index })
+    .filter((t) => t)
+}
+
 /**
  * 获取空格子列表
  * @param rowPerspective
@@ -127,10 +134,11 @@ function getNullUnitList(rowPerspective: SudoProblemType) {
  * @returns
  */
 function hasNullUnit(rowPerspective: SudoProblemType) {
-  const hasNullUnit = !!rowPerspective.flat(1).find((num) => {
-    if (num) return false
-    return true
-  })
+  const hasNullUnit =
+    rowPerspective.flat(1).find((num) => {
+      if (num) return false
+      return true
+    }) === null
   return hasNullUnit
 }
 
@@ -153,7 +161,10 @@ export function sudoProblemCopy(sudoProblem: SudoProblemType) {
   return sudoProblem.map((rows) => rows.map((num) => num))
 }
 
-export function getSudoProblem(): SudoProblemType {
+/**
+ * 创建一个填满数字的数独题目
+ */
+function createdFullSudoProblem() {
   const sudoProblemByBox: SudoProblemType = []
   // 将首尾及中间的宫填上
   sudoProblemByBox[0] = getFullNumBox()
@@ -176,7 +187,8 @@ export function getSudoProblem(): SudoProblemType {
     sudoProblem: SudoProblemType
     possibleList: SudoValue[]
   }[] = []
-  while (!hasNullUnit(rowPerspective)) {
+  while (hasNullUnit(rowPerspective)) {
+    // 发现没有解
     if (!checkValid(rowPerspective)) {
       // 回退到上个回溯点
       const { y, x, possibleList, sudoProblem } = recordPointStack.splice(
@@ -219,7 +231,29 @@ export function getSudoProblem(): SudoProblemType {
     }
     setUniqueUnit(rowPerspective)
   }
+  return rowPerspective
+}
 
+export function getSudoProblem(): SudoProblemType {
+  const rowPerspective = createdFullSudoProblem()
+  // 保存一份填满数字的题目
+  const fullProblem = sudoProblemCopy(rowPerspective)
+  // 开始挖空
+  for (let i = 0; i < 69; i++) {
+    const { index } = randomChoice(getNotNullUnitList(rowPerspective)) || {}
+    if (typeof index !== 'number') continue
+    const [y, x] = [index / 9, index % 9].map(Math.floor)
+    if (typeof y === 'number' && typeof x === 'number') {
+      const num = rowPerspective[y][x]
+      rowPerspective[y][x] = null
+      // 尝试解题
+      const problem = tryCompleteSudoProblem(sudoProblemCopy(rowPerspective))
+      // 解题成功
+      if (problem && problemEqual(problem, fullProblem)) continue
+      rowPerspective[y][x] = num
+      break
+    }
+  }
   console.log(
     'numberCount:',
     rowPerspective
@@ -230,6 +264,21 @@ export function getSudoProblem(): SudoProblemType {
   return rowPerspective
 }
 
+/**
+ * 尝试完成数独
+ * @param rowPerspective
+ * @returns
+ */
+function tryCompleteSudoProblem(rowPerspective: SudoProblemType) {
+  const problem = sudoProblemCopy(rowPerspective)
+  // 循环填写只有唯一解的空
+  while (hasNullUnit(problem)) {
+    // 出现 没有解 或 没有唯一可能性
+    if (!checkValid(problem) || !hasUniqueUnit(problem)) return undefined
+    setUniqueUnit(problem)
+  }
+  return problem
+}
 /**
  * 转换数独数据展示方式（视角）
  * @param boxSudoProblem 宫视角数独
@@ -252,4 +301,16 @@ export function transRowPerspective(boxSudoProblem: SudoProblemType) {
     }
   }
   return sudoProblem
+}
+
+export function problemEqual(
+  problemA: SudoProblemType,
+  problemB: SudoProblemType
+) {
+  for (let y: SudoIndex = 0; y < 9; y++) {
+    for (let x: SudoIndex = 0; x < 9; x++) {
+      if (problemA[y][x] !== problemB[y][x]) return false
+    }
+  }
+  return true
 }
