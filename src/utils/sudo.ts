@@ -243,16 +243,15 @@ export function getSudoProblem(): SudoProblemType {
     const { index } = randomChoice(getNotNullUnitList(rowPerspective)) || {}
     if (typeof index !== 'number') continue
     const [y, x] = [index / 9, index % 9].map(Math.floor)
-    if (typeof y === 'number' && typeof x === 'number') {
-      const num = rowPerspective[y][x]
-      rowPerspective[y][x] = null
-      // 尝试解题
-      const problem = tryCompleteSudoProblem(sudoProblemCopy(rowPerspective))
-      // 解题成功
-      if (problem && problemEqual(problem, fullProblem)) continue
-      rowPerspective[y][x] = num
-      break
-    }
+    if (typeof y !== 'number' || typeof x !== 'number') continue
+    const num = rowPerspective[y][x]
+    rowPerspective[y][x] = null
+    // 尝试解题
+    const problem = tryCompleteSudoProblem(sudoProblemCopy(rowPerspective))
+    // 解题成功
+    if (problem && problemEqual(problem, fullProblem)) continue
+    rowPerspective[y][x] = num
+    if (DIFFICULTY === 'ease') break
   }
   console.log(
     'numberCount:',
