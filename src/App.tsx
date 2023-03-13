@@ -7,9 +7,12 @@ import {
   sudoProblemCopy,
   SudoProblemType,
   SudoValue,
+  transBoxPerspective,
+  transRowPerspective,
 } from './utils/sudo'
 
 function App() {
+  const [sudoNotes, setSudoNotes] = useState<SudoValue[][][]>()
   // 数独题目
   const [sudoProblem, setSudoProblem] = useState<SudoProblemType>(
     new Array(9).fill(new Array(9).fill(undefined))
@@ -61,6 +64,31 @@ function App() {
     }
   }, [keydownListener])
 
+  useEffect(() => {
+    const newSudoNotes = showSudo.map((numList, y) =>
+      numList.map((num, x) =>
+        num ? [] : getUnitPossible(showSudo, y as SudoIndex, x as SudoIndex)
+      )
+    )
+    setSudoNotes(newSudoNotes)
+    // 唯一可能格所在的宫内其他格不可能为该数字
+    // let boxNotes = transBoxPerspective(newSudoNotes)
+    // for (let i = 0; i < 9; i++)
+    //   boxNotes = boxNotes.map((boxList) => {
+    //     const targetNotesList =
+    //       boxList.find((notesList) => notesList.length === 1) || []
+    //     const targetNum = targetNotesList[0]
+    //     return targetNum
+    //       ? boxList.map((notesList) =>
+    //           notesList.length > 1
+    //             ? notesList.filter((note) => note !== targetNum)
+    //             : notesList
+    //         )
+    //       : boxList
+    //   })
+    // setSudoNotes(transRowPerspective(boxNotes) as SudoValue[][][])
+  }, [showSudo])
+
   const [y, x] = currentPosition || []
   const heightLightNum =
     typeof y === 'number' && typeof x === 'number'
@@ -95,7 +123,7 @@ function App() {
                   heightLightNum === num ? styles.heightLight : ''
                 } ${y === ry && x === cx ? styles.curr : ''}`}
               >
-                {num ?? <TipsBox numList={getUnitPossible(showSudo, ry, cx)} />}
+                {num ?? <TipsBox numList={sudoNotes?.[ry]?.[cx]} />}
               </div>
             )
           })

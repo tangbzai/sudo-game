@@ -283,8 +283,8 @@ function tryCompleteSudoProblem(rowPerspective: SudoProblemType) {
  * @param boxSudoProblem 宫视角数独
  * @returns 行视角数独
  */
-export function transRowPerspective(boxSudoProblem: SudoProblemType) {
-  const sudoProblem: SudoProblemType = new Array(9)
+export function transRowPerspective<T extends unknown>(boxSudoProblem: T[][]) {
+  const sudoProblem: (T | null)[][] = new Array(9)
     .fill(null)
     .map(() => new Array(9))
   for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
@@ -297,6 +297,20 @@ export function transRowPerspective(boxSudoProblem: SudoProblemType) {
       const y = Math.floor(indexByline / 9)
       const x = indexByline % 9
       sudoProblem[y][x] = boxSudoProblem[boxIndex]?.[unitIndex] || null
+    }
+  }
+  return sudoProblem
+}
+
+export function transBoxPerspective<T extends unknown>(rowPerspective: T[][]) {
+  const sudoProblem: T[][] = []
+  for (let y = 0; y < 9; y++) {
+    for (let x = 0; x < 9; x++) {
+      const bIndex = Math.floor(y / 3) * 3 + Math.floor(x / 3)
+      sudoProblem[bIndex] = [
+        ...(sudoProblem[bIndex] || []),
+        rowPerspective[y][x],
+      ]
     }
   }
   return sudoProblem
