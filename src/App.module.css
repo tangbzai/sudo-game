@@ -85,13 +85,16 @@
   }
 }
 
-.numberBar {
+.bar {
   margin-top: 20px;
   display: flex;
   justify-content: space-between;
   padding: 0 var(--borderWidth);
-  gap: calc(var(--borderWidth) * 4);
   width: 100%;
+}
+
+.numberBar {
+  gap: calc(var(--borderWidth) * 4);
 
   & > * {
     flex: 1;
@@ -109,5 +112,24 @@
     &:active {
       opacity: 0.8;
     }
+  }
+}
+
+.controlBar {
+  width: 650px;
+  justify-content: space-between;
+  & > * {
+    padding: 10px;
+    width: 105px;
+    height: 105px;
+    color: #9e9d9d;
+    background: rgb(255, 219, 127);
+    border-radius: var(--borderRadius);
+    box-sizing: border-box;
+  }
+
+  & img {
+    height: 100%;
+    aspect-ratio: 1;
   }
 }

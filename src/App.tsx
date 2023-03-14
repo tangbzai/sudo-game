@@ -10,6 +10,10 @@ import {
   transBoxPerspective,
   transRowPerspective,
 } from './utils/sudo'
+import Tips from './assets/tips.svg'
+import Clear from './assets/clear.svg'
+import Record from './assets/record.svg'
+import Revoke from './assets/Revoke.svg'
 
 function App() {
   const [sudoNotes, setSudoNotes] = useState<SudoValue[][][]>()
@@ -129,6 +133,17 @@ function App() {
           })
         )}
       </div>
+      <ControlBar
+        valueEnum={{
+          tips: Tips,
+          clear: Clear,
+          revoke: Revoke,
+          record: Record,
+        }}
+        onClick={(key) => {
+          console.log(key)
+        }}
+      />
       <NumberBar onClick={editUnit} />
     </div>
   )
@@ -164,7 +179,7 @@ interface NumberBarProps {
 function NumberBar(props: NumberBarProps) {
   return (
     <div
-      className={styles.numberBar}
+      className={`${styles.numberBar} ${styles.bar}`}
       onClick={(e) => {
         // @ts-expect-error
         const { innerText } = e.target
@@ -176,6 +191,28 @@ function NumberBar(props: NumberBarProps) {
       {new Array(9).fill(0).map((_, index) => (
         <div key={index}>{index + 1}</div>
       ))}
+    </div>
+  )
+}
+
+interface ControlBarProps<K extends string> {
+  onClick?: (key?: K) => void
+  valueEnum?: Record<K, string>
+}
+function ControlBar<K extends string>(props: ControlBarProps<K>) {
+  return (
+    <div className={`${styles.controlBar} ${styles.bar}`}>
+      {props.valueEnum &&
+        Object.entries<string>(props.valueEnum).map(([key, icon]) => (
+          <div
+            key={key}
+            onClick={() => {
+              props.onClick?.(key as K)
+            }}
+          >
+            <img src={icon} />
+          </div>
+        ))}
     </div>
   )
 }
