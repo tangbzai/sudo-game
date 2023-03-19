@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './App.module.css'
 import {
   getSudoProblem,
@@ -18,7 +18,9 @@ import Record from './assets/record.svg'
 import Revoke from './assets/Revoke.svg'
 import classnames from './utils/classnames'
 
+const RECORD_LENGTH = 5
 function App() {
+  const recordList = useRef<SudoProblemType[]>([])
   const [sudoNotes, setSudoNotes] = useState<SudoNodesType>(
     new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined)))
   )
@@ -50,6 +52,10 @@ function App() {
       // 属于题目位置不可编辑
       if (sudoProblem[y][x]) return
       if (fillPattern === 'normal' || num === null) {
+        // 记录当前状态便于回退
+        recordList.current = recordList.current
+          .slice(-RECORD_LENGTH + 1)
+          .concat([showSudo])
         const newProblem = sudoProblemCopy(showSudo)
         newProblem[y][x] = num
         setShowSudo(newProblem)
@@ -164,7 +170,10 @@ function App() {
           if (!key) return
           const keyMap: Record<typeof key, () => void> = {
             tips: () => {},
-            revoke: () => {},
+            revoke: () => {
+              const newShowSudo = recordList.current.pop()
+              if (newShowSudo) setShowSudo(newShowSudo)
+            },
             clear: () => {
               editUnit(null)
             },
