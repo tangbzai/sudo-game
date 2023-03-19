@@ -1,0 +1,19 @@
+name: 'build'
+on:
+  pull_request:
+    branches:
+      - 'main'
+jobs:
+  install-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      # action命令，安装Node16
+      - name: use Node.js 16
+        # 使用action库  actions/setup-node安装node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: npm install
+        run: npm install
+      - name: build
+        run: npm run build
