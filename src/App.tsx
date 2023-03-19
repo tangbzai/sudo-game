@@ -4,6 +4,8 @@ import {
   getSudoProblem,
   getUnitPossible,
   SudoIndex,
+  sudoNodesCopy,
+  SudoNodesType,
   sudoProblemCopy,
   SudoProblemType,
   SudoValue,
@@ -14,9 +16,12 @@ import Tips from './assets/tips.svg'
 import Clear from './assets/clear.svg'
 import Record from './assets/record.svg'
 import Revoke from './assets/Revoke.svg'
+import classnames from './utils/classnames'
 
 function App() {
-  const [sudoNotes, setSudoNotes] = useState<SudoValue[][][]>()
+  const [sudoNotes, setSudoNotes] = useState<SudoNodesType>(
+    new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined)))
+  )
   // 数独题目
   const [sudoProblem, setSudoProblem] = useState<SudoProblemType>(
     new Array(9).fill(new Array(9).fill(undefined))
@@ -25,6 +30,7 @@ function App() {
   const [showSudo, setShowSudo] = useState<SudoProblemType>(
     new Array(9).fill(new Array(9).fill(undefined))
   )
+  const [fillPattern, setFillPattern] = useState<'normal' | 'note'>('normal')
   // 当前选中的位置
   const [currentPosition, setCurrentPosition] =
     useState<[SudoIndex, SudoIndex]>()
@@ -38,16 +44,27 @@ function App() {
   }, [])
 
   const editUnit = useCallback(
-    (num: SudoValue) => {
+    (num: SudoValue | null) => {
       const [y, x] = currentPosition || []
       if (typeof y !== 'number' || typeof x !== 'number') return
-      const newProblem = sudoProblemCopy(showSudo)
       // 属于题目位置不可编辑
       if (sudoProblem[y][x]) return
-      newProblem[y][x] = num
-      setShowSudo(newProblem)
+      if (fillPattern === 'normal' || num === null) {
+        const newProblem = sudoProblemCopy(showSudo)
+        newProblem[y][x] = num
+        setShowSudo(newProblem)
+        return
+      }
+      if (fillPattern === 'note') {
+        const newNotes = sudoNodesCopy(sudoNotes)
+        const hasNum = newNotes[y][x].find((n) => n === num)
+        if (hasNum) newNotes[y][x] = newNotes[y][x].filter((n) => n !== num)
+        else newNotes[y][x].push(num)
+        setSudoNotes(newNotes)
+        return
+      }
     },
-    [showSudo, sudoProblem, currentPosition]
+    [showSudo, sudoNotes, sudoProblem, currentPosition]
   )
 
   const keydownListener = useCallback(
@@ -123,11 +140,13 @@ function App() {
             return (
               <div
                 key={`${ry}-${cx}`}
-                className={`${styles.unit} ${
-                  heightLightNum === num ? styles.heightLight : ''
-                } ${y === ry && x === cx ? styles.curr : ''}`}
+                className={classnames(
+                  styles.unit,
+                  heightLightNum === num ? styles.heightLight : '',
+                  y === ry && x === cx ? styles.curr : ''
+                )}
               >
-                {num ?? <TipsBox numList={sudoNotes?.[ry]?.[cx]} />}
+                {num ?? <TipsBox numList={sudoNotes[ry][cx]} />}
               </div>
             )
           })
@@ -136,15 +155,32 @@ function App() {
       <ControlBar
         valueEnum={{
           tips: Tips,
-          clear: Clear,
           revoke: Revoke,
+          clear: Clear,
           record: Record,
         }}
         onClick={(key) => {
           console.log(key)
+          if (!key) return
+          const keyMap: Record<typeof key, () => void> = {
+            tips: () => {},
+            revoke: () => {},
+            clear: () => {
+              editUnit(null)
+            },
+            record: () => {
+              setFillPattern(fillPattern === 'normal' ? 'note' : 'normal')
+            },
+          }
+          keyMap[key]?.()
         }}
       />
-      <NumberBar onClick={editUnit} />
+      <NumberBar
+        className={classnames(
+          fillPattern === 'normal' ? styles.normal : styles.note
+        )}
+        onClick={editUnit}
+      />
     </div>
   )
 }
@@ -174,12 +210,13 @@ function TipsBox(props: TipsBoxProps) {
 }
 
 interface NumberBarProps {
+  className?: string
   onClick?: (num: SudoValue) => void
 }
 function NumberBar(props: NumberBarProps) {
   return (
     <div
-      className={`${styles.numberBar} ${styles.bar}`}
+      className={classnames(styles.numberBar, styles.bar, props.className)}
       onClick={(e) => {
         // @ts-expect-error
         const { innerText } = e.target
@@ -201,7 +238,7 @@ interface ControlBarProps<K extends string> {
 }
 function ControlBar<K extends string>(props: ControlBarProps<K>) {
   return (
-    <div className={`${styles.controlBar} ${styles.bar}`}>
+    <div className={classnames(styles.controlBar, styles.bar)}>
       {props.valueEnum &&
         Object.entries<string>(props.valueEnum).map(([key, icon]) => (
           <div

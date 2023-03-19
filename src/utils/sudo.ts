@@ -1,5 +1,6 @@
 export type SudoGroupType = (SudoValue | null)[]
 export type SudoProblemType = SudoGroupType[]
+export type SudoNodesType = SudoValue[][][]
 export type SudoValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 export type SudoIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
@@ -159,6 +160,15 @@ function randomChoice<T extends unknown>(list: T[]): T {
  */
 export function sudoProblemCopy(sudoProblem: SudoProblemType) {
   return sudoProblem.map((rows) => rows.map((num) => num))
+}
+
+/**
+ * 复制一个数独笔记
+ * @param sudoProblem 数独笔记
+ * @returns
+ */
+export function sudoNodesCopy(sudoNodes: SudoNodesType) {
+  return sudoNodes.map((rows) => rows.map((notes) => notes.map((note) => note)))
 }
 
 /**
