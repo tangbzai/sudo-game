@@ -91,30 +91,31 @@ function App() {
     }
   }, [keydownListener])
 
-  useEffect(() => {
-    const newSudoNotes = showSudo.map((numList, y) =>
-      numList.map((num, x) =>
-        num ? [] : getUnitPossible(showSudo, y as SudoIndex, x as SudoIndex)
-      )
-    )
-    setSudoNotes(newSudoNotes)
-    // 唯一可能格所在的宫内其他格不可能为该数字
-    // let boxNotes = transBoxPerspective(newSudoNotes)
-    // for (let i = 0; i < 9; i++)
-    //   boxNotes = boxNotes.map((boxList) => {
-    //     const targetNotesList =
-    //       boxList.find((notesList) => notesList.length === 1) || []
-    //     const targetNum = targetNotesList[0]
-    //     return targetNum
-    //       ? boxList.map((notesList) =>
-    //           notesList.length > 1
-    //             ? notesList.filter((note) => note !== targetNum)
-    //             : notesList
-    //         )
-    //       : boxList
-    //   })
-    // setSudoNotes(transRowPerspective(boxNotes) as SudoValue[][][])
-  }, [showSudo])
+  // 生成笔记
+  // useEffect(() => {
+  //   const newSudoNotes = showSudo.map((numList, y) =>
+  //     numList.map((num, x) =>
+  //       num ? [] : getUnitPossible(showSudo, y as SudoIndex, x as SudoIndex)
+  //     )
+  //   )
+  //   setSudoNotes(newSudoNotes)
+  //   // 唯一可能格所在的宫内其他格不可能为该数字
+  //   let boxNotes = transBoxPerspective(newSudoNotes)
+  //   for (let i = 0; i < 9; i++)
+  //     boxNotes = boxNotes.map((boxList) => {
+  //       const targetNotesList =
+  //         boxList.find((notesList) => notesList.length === 1) || []
+  //       const targetNum = targetNotesList[0]
+  //       return targetNum
+  //         ? boxList.map((notesList) =>
+  //             notesList.length > 1
+  //               ? notesList.filter((note) => note !== targetNum)
+  //               : notesList
+  //           )
+  //         : boxList
+  //     })
+  //   setSudoNotes(transRowPerspective(boxNotes) as SudoValue[][][])
+  // }, [showSudo])
 
   const [y, x] = currentPosition || []
   const heightLightNum =
@@ -166,10 +167,17 @@ function App() {
           record: Record,
         }}
         onClick={(key) => {
-          console.log(key)
           if (!key) return
           const keyMap: Record<typeof key, () => void> = {
-            tips: () => {},
+            tips: () => {
+              // 生成选中格的笔记
+              if (typeof y !== 'number' || typeof x !== 'number') return
+              // 属于题目位置不可编辑
+              if (sudoProblem[y][x]) return
+              const newNotes = sudoNodesCopy(sudoNotes)
+              newNotes[y][x] = getUnitPossible(showSudo, y, x)
+              setSudoNotes(newNotes)
+            },
             revoke: () => {
               const newShowSudo = recordList.current.pop()
               if (newShowSudo) setShowSudo(newShowSudo)
