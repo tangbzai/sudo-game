@@ -15,7 +15,7 @@ import {
 import Tips from './assets/tips.svg'
 import Clear from './assets/clear.svg'
 import Record from './assets/record.svg'
-import Revoke from './assets/Revoke.svg'
+import Revoke from './assets/revoke.svg'
 import classnames from './utils/classnames'
 
 const RECORD_LENGTH = 5
