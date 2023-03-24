@@ -1,32 +1,148 @@
-.app {
-  --unitSize: 25px;
+:root {
+  --unitSize: 32px;
   --bgColor: white;
+  --borderWidth: 2px;
+  --borderRadius: 5px;
+}
 
+.app {
+  display: flex;
+  flex-flow: column nowrap;
+  padding: 24px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+
+  & > * {
+    max-width: 1024px;
+    margin: 0 auto;
+  }
+}
+
+.sudoProblem {
   display: grid;
   grid-template: repeat(9, 1fr) / repeat(9, 1fr);
-  width: calc(var(--unitSize) * 3 * 9);
-  height: calc(var(--unitSize) * 3 * 9);
+  width: 100%;
 
   & .unit {
-    width: calc(var(--unitSize) * 3);
-    height: calc(var(--unitSize) * 3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
     font-size: var(--unitSize);
     font-weight: bold;
-    line-height: calc(var(--unitSize) * 3);
     color: #333;
     background: var(--bgColor);
-    box-shadow: 0 0 0 2px #333 inset;
+    /* box-shadow: 0 0 0 var(--borderWidth) #333 inset; */
+    border: var(--borderWidth) #333 solid;
+    border-radius: var(--borderRadius);
+    box-sizing: border-box;
 
     &:nth-child(3n) {
-      border-right: 4px solid #333;
+      border-right: calc(var(--borderWidth) * 2) #333 solid;
+    }
+    &:nth-child(9n) {
+      border: var(--borderWidth) #333 solid;
     }
 
     &:nth-child(n + 28):nth-child(-n + 36) {
-      border-top: 2px solid #333;
+      border-top: calc(var(--borderWidth) * 2) #333 solid;
     }
 
     &:nth-child(n + 55):nth-child(-n + 63) {
-      border-top: 2px solid #333;
+      border-top: calc(var(--borderWidth) * 2) #333 solid;
     }
+    &.heightLight {
+      color: rgb(253, 252, 247);
+      background: rgb(233, 198, 103);
+    }
+
+    &.curr {
+      color: #333;
+      background: rgb(250, 233, 188);
+      & .tips > * {
+        color: #333;
+        font-weight: bold;
+      }
+    }
+  }
+}
+.tips {
+  pointer-events: none;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  grid-template-rows: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  padding: 6px;
+  box-sizing: border-box;
+  gap: clac(var(--borderWidth) * 2);
+
+  & > * {
+    display: block;
+    font-size: calc(var(--unitSize) / 2);
+    font-weight: normal;
+    color: #ccc;
+  }
+}
+
+.bar {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--borderWidth);
+  width: 100%;
+}
+
+.numberBar {
+  gap: calc(var(--borderWidth) * 4);
+
+  &.note {
+    & > * {
+      --noteColor: rgb(221, 191, 113);
+      color: var(--noteColor);
+      background: #2c2c2c;
+      border: 4px solid var(--noteColor);
+    }
+  }
+
+  & > * {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--unitSize);
+    cursor: pointer;
+    font-weight: bold;
+    color: #333;
+    background: rgb(255, 219, 127);
+    border-radius: var(--borderRadius);
+    aspect-ratio: 1;
+
+    &:active {
+      opacity: 0.8;
+    }
+  }
+}
+
+.controlBar {
+  width: 100%;
+  justify-content: space-around;
+  & > * {
+    padding: 10px;
+    width: 100px;
+    height: 80px;
+    color: #9e9d9d;
+    background: rgb(255, 219, 127);
+    border-radius: var(--borderRadius);
+    box-sizing: border-box;
+  }
+
+  & img {
+    height: 100%;
+    aspect-ratio: 1;
   }
 }
