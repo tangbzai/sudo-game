@@ -19,3 +19,10 @@ jobs:
         run: npm install
       - name: build
         run: npm run build
+      - name: deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          # 发布到指定分支
+          BRANCH: gh-pages
+          # 构建成果所在目录,默认位置都是在根目录
+          FOLDER:  ./dist
