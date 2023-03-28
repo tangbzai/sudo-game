@@ -1,4 +1,3 @@
-import classnames from '@/utils/classnames'
 import styles from './index.module.css'
 
 interface ControlBarProps<K extends string> {
