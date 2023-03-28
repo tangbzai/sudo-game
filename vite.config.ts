@@ -12,5 +12,11 @@ export default defineConfig({
   server: {
     host: true,
   },
+  css: {
+    modules: {
+      generateScopedName: '[folder]_[name]_[local]_[hash:base64:5]',
+      hashPrefix: 'prefix',
+    },
+  },
   plugins: [react()],
 })
