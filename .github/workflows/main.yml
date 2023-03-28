@@ -7,6 +7,7 @@ jobs:
   install-and-build:
     runs-on: ubuntu-latest
     steps:
+      # 切换到代码根目录
       - name: Checkout Code
         uses: actions/checkout@v2
       # action命令，安装Node16
@@ -19,11 +20,12 @@ jobs:
         run: npm install
       - name: build
         run: npm run build
+      # 将打包后的产物放到指定分支中
       - name: deploy
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # 发布到指定分支
           BRANCH: gh-pages
-          # 构建成果所在目录,默认位置都是在根目录
+          # 构建产物所在目录,默认位置都是在根目录
           FOLDER:  dist

@@ -9,14 +9,15 @@ import {
   sudoProblemCopy,
   SudoProblemType,
   SudoValue,
-  transBoxPerspective,
-  transRowPerspective,
 } from './utils/sudo'
 import Tips from './assets/tips.svg'
 import Clear from './assets/clear.svg'
 import Record from './assets/record.svg'
 import Revoke from './assets/revoke.svg'
 import classnames from './utils/classnames'
+import ControlBar from './components/ControlBar'
+import NumberBar from './components/NumberBar'
+import TipsBox from './components/TipsBox'
 
 const RECORD_LENGTH = 5
 function App() {
@@ -153,7 +154,12 @@ function App() {
                   y === ry && x === cx ? styles.curr : ''
                 )}
               >
-                {num ?? <TipsBox numList={sudoNotes[ry][cx]} />}
+                {num ?? (
+                  <TipsBox
+                    className={styles.tips}
+                    numList={sudoNotes[ry][cx]}
+                  />
+                )}
               </div>
             )
           })
@@ -194,6 +200,7 @@ function App() {
       />
       <NumberBar
         className={classnames(
+          styles.numberBar,
           fillPattern === 'normal' ? styles.normal : styles.note
         )}
         onClick={editUnit}
@@ -202,72 +209,4 @@ function App() {
   )
 }
 
-interface TipsBoxProps {
-  numList?: SudoValue[]
-}
-
-function TipsBox(props: TipsBoxProps) {
-  const numList = props.numList || []
-  return (
-    <div className={styles.tips}>
-      {new Array(9).fill(0).map((_, index) => (
-        <span
-          key={index}
-          style={
-            numList.includes((index + 1) as SudoValue)
-              ? {}
-              : { visibility: 'hidden' }
-          }
-        >
-          {index + 1}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-interface NumberBarProps {
-  className?: string
-  onClick?: (num: SudoValue) => void
-}
-function NumberBar(props: NumberBarProps) {
-  return (
-    <div
-      className={classnames(styles.numberBar, styles.bar, props.className)}
-      onClick={(e) => {
-        // @ts-expect-error
-        const { innerText } = e.target
-        const num = Number(innerText) as SudoValue
-        if (Number.isNaN(num)) return
-        props.onClick?.(num)
-      }}
-    >
-      {new Array(9).fill(0).map((_, index) => (
-        <div key={index}>{index + 1}</div>
-      ))}
-    </div>
-  )
-}
-
-interface ControlBarProps<K extends string> {
-  onClick?: (key?: K) => void
-  valueEnum?: Record<K, string>
-}
-function ControlBar<K extends string>(props: ControlBarProps<K>) {
-  return (
-    <div className={classnames(styles.controlBar, styles.bar)}>
-      {props.valueEnum &&
-        Object.entries<string>(props.valueEnum).map(([key, icon]) => (
-          <div
-            key={key}
-            onClick={() => {
-              props.onClick?.(key as K)
-            }}
-          >
-            <img src={icon} />
-          </div>
-        ))}
-    </div>
-  )
-}
 export default App
