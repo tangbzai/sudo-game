@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { createRef, useCallback, useEffect, useRef, useState } from 'react'
 import styles from './App.module.css'
 import {
   getSudoProblem,
@@ -18,21 +18,26 @@ import classnames from './utils/classnames'
 import ControlBar from './components/ControlBar'
 import NumberBar from './components/NumberBar'
 import TipsBox from './components/TipsBox'
+import Timer from './components/Timer'
 
+// 撤回最多次数
 const RECORD_LENGTH = 5
 function App() {
+  // 历史记录列表（用作撤回操作）
   const recordList = useRef<SudoProblemType[]>([])
+  // 数独笔记
   const [sudoNotes, setSudoNotes] = useState<SudoNodesType>(
     new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined)))
   )
   // 数独题目
   const [sudoProblem, setSudoProblem] = useState<SudoProblemType>(
-    new Array(9).fill(new Array(9).fill(undefined))
+    new Array(9).fill(new Array(9).fill(null))
   )
   // 正在展示的数独
   const [showSudo, setShowSudo] = useState<SudoProblemType>(
-    new Array(9).fill(new Array(9).fill(undefined))
+    new Array(9).fill(new Array(9).fill(null))
   )
+  // 填写模式
   const [fillPattern, setFillPattern] = useState<'normal' | 'note'>('normal')
   // 当前选中的位置
   const [currentPosition, setCurrentPosition] =
@@ -52,6 +57,7 @@ function App() {
       if (typeof y !== 'number' || typeof x !== 'number') return
       // 属于题目位置不可编辑
       if (sudoProblem[y][x]) return
+      // 正常模式或清空单元格
       if (fillPattern === 'normal' || num === null) {
         // 记录当前状态便于回退
         recordList.current = recordList.current
@@ -62,6 +68,7 @@ function App() {
         setShowSudo(newProblem)
         return
       }
+      // 笔记模式
       if (fillPattern === 'note') {
         const newNotes = sudoNodesCopy(sudoNotes)
         const hasNum = newNotes[y][x].find((n) => n === num)
@@ -91,6 +98,12 @@ function App() {
       window.removeEventListener('keydown', keydownListener)
     }
   }, [keydownListener])
+
+  const timerRef = createRef<{ stopFn: () => void }>()
+  useEffect(() => {
+    if (!showSudo.find((row) => row.includes(null))?.includes(null))
+      timerRef.current?.stopFn()
+  }, [showSudo])
 
   // 生成笔记
   // useEffect(() => {
@@ -141,6 +154,7 @@ function App() {
         setCurrentPosition([targetY, targetX])
       }}
     >
+      <Timer ref={timerRef} />
       <div className={styles.sudoProblem}>
         {showSudo.map((row, rowIndex) =>
           row.map((num, columnIndex) => {
