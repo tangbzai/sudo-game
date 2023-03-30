@@ -199,6 +199,7 @@ function App() {
                 key={`${ry}-${cx}`}
                 className={classnames(
                   styles.unit,
+                  !!sudoProblem[ry][cx] ? styles.immutable: '',
                   heightLightNum === num ? styles.heightLight : '',
                   y === ry && x === cx ? styles.curr : ''
                 )}
