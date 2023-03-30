@@ -337,3 +337,49 @@ export function problemEqual(
   }
   return true
 }
+
+/**
+ * 检查数独是否符合数独规则
+ * @param rowPerspective 行视角数独
+ */
+export function correctSudo(rowPerspective: SudoValue[][]): boolean {
+  const boxSudoProblem = transBoxPerspective(rowPerspective)
+
+  /**
+   * 检查某行是否符合数独规则
+   * @param index 行数
+   */
+  function correctRow(index: SudoIndex): boolean {
+    if ([...new Set(rowPerspective[index])].length !== 9) return false
+    return true
+  }
+
+  /**
+   * 检查某列是否符合数独规则
+   * @param index 列数
+   */
+  function correctColumn(index: SudoIndex): boolean {
+    const arr = []
+    for (let i = 0; i < 9; i++) {
+      arr.push(rowPerspective[i][index])
+    }
+    if ([...new Set(boxSudoProblem[index])].length !== 9) return false
+    return true
+  }
+
+  /**
+   * 检查某宫是否符合数独规则
+   * @param index 宫数
+   */
+  function correctBox(index: SudoIndex): boolean {
+    if ([...new Set(boxSudoProblem[index])].length !== 9) return false
+    return true
+  }
+
+  for (let i = 0; i < 9; i++) {
+    if (!correctRow(i as SudoIndex)) return false
+    if (!correctColumn(i as SudoIndex)) return false
+    if (!correctBox(i as SudoIndex)) return false
+  }
+  return true
+}

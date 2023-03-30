@@ -33,7 +33,7 @@
     aspect-ratio: 1;
     font-size: var(--unitSize);
     font-weight: bold;
-    color: #333;
+    color: #555;
     background: var(--bgColor);
     /* box-shadow: 0 0 0 var(--borderWidth) #333 inset; */
     border: var(--borderWidth) #333 solid;
@@ -54,13 +54,20 @@
     &:nth-child(n + 55):nth-child(-n + 63) {
       border-top: calc(var(--borderWidth) * 2) #333 solid;
     }
+
+    &.immutable {
+      color: rgb(255, 187, 0);
+    }
+
     &.heightLight {
-      color: rgb(253, 252, 247);
       background: rgb(233, 198, 103);
+
+      &:not(.curr) {
+        color: rgb(253, 252, 247);
+      }
     }
 
     &.curr {
-      color: #333;
       background: rgb(250, 233, 188);
       & .tips > * {
         color: #333;

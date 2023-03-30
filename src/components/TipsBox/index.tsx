@@ -10,7 +10,7 @@ interface TipsBoxProps {
 function TipsBox(props: TipsBoxProps) {
   const numList = props.numList || []
   return (
-    <div className={classnames(styles.tips, styles.className)}>
+    <div className={classnames(styles.tips, props.className)}>
       {new Array(9).fill(0).map((_, index) => (
         <span
           key={index}

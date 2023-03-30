@@ -1,6 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  createRef,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import styles from './App.module.css'
 import {
+  correctSudo,
   getSudoProblem,
   getUnitPossible,
   SudoIndex,
@@ -18,33 +26,49 @@ import classnames from './utils/classnames'
 import ControlBar from './components/ControlBar'
 import NumberBar from './components/NumberBar'
 import TipsBox from './components/TipsBox'
+import Timer from './components/Timer'
+import TheEnd from './TheEnd'
+import { timeFormat } from './utils/time'
 
+// 撤回最多次数
 const RECORD_LENGTH = 5
 function App() {
+  // 历史记录列表（用作撤回操作）
   const recordList = useRef<SudoProblemType[]>([])
+  // 数独笔记
   const [sudoNotes, setSudoNotes] = useState<SudoNodesType>(
     new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined)))
   )
   // 数独题目
   const [sudoProblem, setSudoProblem] = useState<SudoProblemType>(
-    new Array(9).fill(new Array(9).fill(undefined))
+    new Array(9).fill(new Array(9).fill(null))
   )
   // 正在展示的数独
   const [showSudo, setShowSudo] = useState<SudoProblemType>(
-    new Array(9).fill(new Array(9).fill(undefined))
+    new Array(9).fill(new Array(9).fill(null))
   )
+  // 填写模式
   const [fillPattern, setFillPattern] = useState<'normal' | 'note'>('normal')
   // 当前选中的位置
   const [currentPosition, setCurrentPosition] =
     useState<[SudoIndex, SudoIndex]>()
-  useEffect(() => {
+  // 初始化
+  const init = useCallback(() => {
     // 获取题目
     const t = new Date()
     const sudoProblem = getSudoProblem()
     console.log('生成耗时：', Date.now() - t.getTime(), 'ms')
     setSudoProblem(sudoProblem)
     setShowSudo(sudoProblem)
+    setSudoNotes(
+      new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined)))
+    )
+    setFillPattern('normal')
+    recordList.current = []
   }, [])
+  useEffect(() => {
+    init()
+  }, [init])
 
   const editUnit = useCallback(
     (num: SudoValue | null) => {
@@ -52,6 +76,7 @@ function App() {
       if (typeof y !== 'number' || typeof x !== 'number') return
       // 属于题目位置不可编辑
       if (sudoProblem[y][x]) return
+      // 正常模式或清空单元格
       if (fillPattern === 'normal' || num === null) {
         // 记录当前状态便于回退
         recordList.current = recordList.current
@@ -62,6 +87,7 @@ function App() {
         setShowSudo(newProblem)
         return
       }
+      // 笔记模式
       if (fillPattern === 'note') {
         const newNotes = sudoNodesCopy(sudoNotes)
         const hasNum = newNotes[y][x].find((n) => n === num)
@@ -91,6 +117,18 @@ function App() {
       window.removeEventListener('keydown', keydownListener)
     }
   }, [keydownListener])
+
+  const timerRef = createRef<{ stopFn: () => number; resetFn: () => void }>()
+  const [endTime, setEndTime] = useState<ReactNode>()
+  useEffect(() => {
+    // 还有没填的格子
+    if (showSudo.find((row) => row.includes(null))?.includes(null)) return
+    // 校验数独正确性
+    console.log(correctSudo(showSudo as SudoValue[][]))
+    if (!correctSudo(showSudo as SudoValue[][])) return
+    const seconds = timerRef.current?.stopFn()
+    setEndTime(!!seconds && timeFormat(seconds))
+  }, [showSudo])
 
   // 生成笔记
   // useEffect(() => {
@@ -141,6 +179,17 @@ function App() {
         setCurrentPosition([targetY, targetX])
       }}
     >
+      {endTime && (
+        <TheEnd
+          time={endTime}
+          onClickReset={() => {
+            timerRef.current?.resetFn()
+            setEndTime(undefined)
+            init()
+          }}
+        />
+      )}
+      <Timer ref={timerRef} />
       <div className={styles.sudoProblem}>
         {showSudo.map((row, rowIndex) =>
           row.map((num, columnIndex) => {
@@ -150,6 +199,7 @@ function App() {
                 key={`${ry}-${cx}`}
                 className={classnames(
                   styles.unit,
+                  !!sudoProblem[ry][cx] ? styles.immutable: '',
                   heightLightNum === num ? styles.heightLight : '',
                   y === ry && x === cx ? styles.curr : ''
                 )}

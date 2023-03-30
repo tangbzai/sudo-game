@@ -1,0 +1,7 @@
+:where(.btn) {
+  padding: 0.8em 1.3em;
+  font-size: 30px;
+  color: #242424;
+  background: rgb(255, 219, 127);
+  border-radius: 8px;
+}
