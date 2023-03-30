@@ -1,0 +1,30 @@
+.theEnd {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+  color: wheat;
+  background-color: #242424;
+
+  & h1 {
+    font-size: 80px;
+  }
+
+  & em {
+    font-size: 50px;
+  }
+
+  & strong {
+    font-size: 50px;
+  }
+
+  & .btn {
+    margin-top: 12px;
+  }
+}

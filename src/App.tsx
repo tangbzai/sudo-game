@@ -1,6 +1,14 @@
-import { createRef, useCallback, useEffect, useRef, useState } from 'react'
+import {
+  createRef,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
 import styles from './App.module.css'
 import {
+  correctSudo,
   getSudoProblem,
   getUnitPossible,
   SudoIndex,
@@ -19,6 +27,8 @@ import ControlBar from './components/ControlBar'
 import NumberBar from './components/NumberBar'
 import TipsBox from './components/TipsBox'
 import Timer from './components/Timer'
+import TheEnd from './TheEnd'
+import { timeFormat } from './utils/time'
 
 // 撤回最多次数
 const RECORD_LENGTH = 5
@@ -42,14 +52,23 @@ function App() {
   // 当前选中的位置
   const [currentPosition, setCurrentPosition] =
     useState<[SudoIndex, SudoIndex]>()
-  useEffect(() => {
+  // 初始化
+  const init = useCallback(() => {
     // 获取题目
     const t = new Date()
     const sudoProblem = getSudoProblem()
     console.log('生成耗时：', Date.now() - t.getTime(), 'ms')
     setSudoProblem(sudoProblem)
     setShowSudo(sudoProblem)
+    setSudoNotes(
+      new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined)))
+    )
+    setFillPattern('normal')
+    recordList.current = []
   }, [])
+  useEffect(() => {
+    init()
+  }, [init])
 
   const editUnit = useCallback(
     (num: SudoValue | null) => {
@@ -99,10 +118,16 @@ function App() {
     }
   }, [keydownListener])
 
-  const timerRef = createRef<{ stopFn: () => void }>()
+  const timerRef = createRef<{ stopFn: () => number; resetFn: () => void }>()
+  const [endTime, setEndTime] = useState<ReactNode>()
   useEffect(() => {
-    if (!showSudo.find((row) => row.includes(null))?.includes(null))
-      timerRef.current?.stopFn()
+    // 还有没填的格子
+    if (showSudo.find((row) => row.includes(null))?.includes(null)) return
+    // 校验数独正确性
+    console.log(correctSudo(showSudo as SudoValue[][]))
+    if (!correctSudo(showSudo as SudoValue[][])) return
+    const seconds = timerRef.current?.stopFn()
+    setEndTime(!!seconds && timeFormat(seconds))
   }, [showSudo])
 
   // 生成笔记
@@ -154,6 +179,16 @@ function App() {
         setCurrentPosition([targetY, targetX])
       }}
     >
+      {endTime && (
+        <TheEnd
+          time={endTime}
+          onClickReset={() => {
+            timerRef.current?.resetFn()
+            setEndTime(undefined)
+            init()
+          }}
+        />
+      )}
       <Timer ref={timerRef} />
       <div className={styles.sudoProblem}>
         {showSudo.map((row, rowIndex) =>
