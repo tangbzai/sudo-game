@@ -11,9 +11,7 @@ const DIFFICULTY: 'ease' | 'middle' | 'hard' = 'middle'
  * 获取一个随机顺序的 1-9 数组
  */
 function getFullNumBox() {
-  const arr: SudoGroupType = new Array(9)
-    .fill(0)
-    .map((_, index) => index + 1) as SudoGroupType
+  const arr: SudoGroupType = new Array(9).fill(0).map((_, index) => index + 1) as SudoGroupType
   const result: SudoGroupType = []
   while (arr.length) {
     result.push(arr.splice(Math.floor(Math.random() * arr.length), 1)[0])
@@ -32,16 +30,13 @@ export function getUnitPossible(
   y: SudoIndex,
   x: SudoIndex
 ): SudoValue[] {
-  const arr: SudoGroupType = new Array(9)
-    .fill(0)
-    .map((_, index) => index + 1) as SudoGroupType
+  const arr: SudoGroupType = new Array(9).fill(0).map((_, index) => index + 1) as SudoGroupType
   const exclude = new Set()
   for (let i = 0; i < 9; i++) {
     if (i !== x && rowPerspective[y][i]) exclude.add(rowPerspective[y][i])
     if (i !== y && rowPerspective[i][x]) exclude.add(rowPerspective[i][x])
     const [offsetY, offsetX] = [Math.floor(y / 3) * 3, Math.floor(x / 3) * 3]
-    const boxTarget =
-      rowPerspective[offsetY + Math.floor(i / 3)][offsetX + Math.floor(i % 3)]
+    const boxTarget = rowPerspective[offsetY + Math.floor(i / 3)][offsetX + Math.floor(i % 3)]
     if (boxTarget) exclude.add(boxTarget)
   }
   return arr.filter((num) => !exclude.has(num)) as SudoValue[]
@@ -54,10 +49,7 @@ export function getUnitPossible(
 function setUniqueUnit(rowPerspective: SudoProblemType) {
   rowPerspective.flat(1).forEach((num, index) => {
     if (num) return
-    const [y, x] = [index / 9, index % 9].map(Math.floor) as [
-      SudoIndex,
-      SudoIndex
-    ]
+    const [y, x] = [index / 9, index % 9].map(Math.floor) as [SudoIndex, SudoIndex]
     const unitPossible = getUnitPossible(rowPerspective, y, x)
     if (unitPossible.length === 1) rowPerspective[y][x] = unitPossible[0]
   })
@@ -70,10 +62,7 @@ function setUniqueUnit(rowPerspective: SudoProblemType) {
 function checkValid(rowPerspective: SudoProblemType) {
   const hasNotPossible = rowPerspective.flat(1).find((num, index) => {
     if (num) return false
-    const [y, x] = [index / 9, index % 9].map(Math.floor) as [
-      SudoIndex,
-      SudoIndex
-    ]
+    const [y, x] = [index / 9, index % 9].map(Math.floor) as [SudoIndex, SudoIndex]
     const unitPossible = getUnitPossible(rowPerspective, y, x)
     if (!unitPossible.length) return true
   })
@@ -88,10 +77,7 @@ function checkValid(rowPerspective: SudoProblemType) {
 function hasUniqueUnit(rowPerspective: SudoProblemType) {
   const hasUniqueUnit = rowPerspective.flat(1).find((num, index) => {
     if (num) return false
-    const [y, x] = [index / 9, index % 9].map(Math.floor) as [
-      SudoIndex,
-      SudoIndex
-    ]
+    const [y, x] = [index / 9, index % 9].map(Math.floor) as [SudoIndex, SudoIndex]
     const unitPossible = getUnitPossible(rowPerspective, y, x)
     if (unitPossible.length === 1) return true
   })
@@ -115,10 +101,7 @@ function getNullUnitList(rowPerspective: SudoProblemType) {
     .flat(1)
     .map((num, index) => {
       if (num) return undefined
-      const [y, x] = [index / 9, index % 9].map(Math.floor) as [
-        SudoIndex,
-        SudoIndex
-      ]
+      const [y, x] = [index / 9, index % 9].map(Math.floor) as [SudoIndex, SudoIndex]
       return {
         x,
         y,
@@ -201,10 +184,7 @@ function createdFullSudoProblem() {
     // 发现没有解
     if (!checkValid(rowPerspective)) {
       // 回退到上个回溯点
-      const { y, x, possibleList, sudoProblem } = recordPointStack.splice(
-        -1,
-        1
-      )?.[0]
+      const { y, x, possibleList, sudoProblem } = recordPointStack.splice(-1, 1)?.[0]
       rowPerspective = sudoProblem
       if (possibleList.length === 1) {
         rowPerspective[y][x] = possibleList[0]
@@ -265,9 +245,7 @@ export function getSudoProblem(): SudoProblemType {
   }
   console.log(
     'numberCount:',
-    rowPerspective
-      .flat(1)
-      .reduce<number>((acc, num) => (num ? acc + 1 : acc), 0)
+    rowPerspective.flat(1).reduce<number>((acc, num) => (num ? acc + 1 : acc), 0)
   )
   // 需要保证最少18个否则可能有多个解
   return rowPerspective
@@ -294,9 +272,7 @@ function tryCompleteSudoProblem(rowPerspective: SudoProblemType) {
  * @returns 行视角数独
  */
 export function transRowPerspective<T extends unknown>(boxSudoProblem: T[][]) {
-  const sudoProblem: (T | null)[][] = new Array(9)
-    .fill(null)
-    .map(() => new Array(9))
+  const sudoProblem: (T | null)[][] = new Array(9).fill(null).map(() => new Array(9))
   for (let boxIndex = 0; boxIndex < 9; boxIndex++) {
     for (let unitIndex = 0; unitIndex < 9; unitIndex++) {
       const indexByline =
@@ -317,19 +293,13 @@ export function transBoxPerspective<T extends unknown>(rowPerspective: T[][]) {
   for (let y = 0; y < 9; y++) {
     for (let x = 0; x < 9; x++) {
       const bIndex = Math.floor(y / 3) * 3 + Math.floor(x / 3)
-      sudoProblem[bIndex] = [
-        ...(sudoProblem[bIndex] || []),
-        rowPerspective[y][x],
-      ]
+      sudoProblem[bIndex] = [...(sudoProblem[bIndex] || []), rowPerspective[y][x]]
     }
   }
   return sudoProblem
 }
 
-export function problemEqual(
-  problemA: SudoProblemType,
-  problemB: SudoProblemType
-) {
+export function problemEqual(problemA: SudoProblemType, problemB: SudoProblemType) {
   for (let y: SudoIndex = 0; y < 9; y++) {
     for (let x: SudoIndex = 0; x < 9; x++) {
       if (problemA[y][x] !== problemB[y][x]) return false

@@ -1,12 +1,5 @@
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { timeFormat } from '@/utils/time'
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react'
 import styles from './index.module.css'
 
 const Timer = forwardRef((props: {}, ref) => {

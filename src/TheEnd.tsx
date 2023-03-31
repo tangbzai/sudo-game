@@ -1,5 +1,5 @@
 import { MouseEventHandler, ReactNode } from 'react'
-import Button from './components/Button'
+import Button from '@/components/Button'
 import styles from './TheEnd.module.css'
 
 interface TheEndProps {
