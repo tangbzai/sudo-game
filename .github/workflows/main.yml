@@ -10,12 +10,12 @@ jobs:
       # 切换到代码根目录
       - name: Checkout Code
         uses: actions/checkout@v2
-      # action命令，安装Node16
-      - name: use Node.js 16
+      # action命令，安装Node20
+      - name: use Node.js 20
         # 使用action库  actions/setup-node安装node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 20
       - name: npm install
         run: npm install
       - name: build
