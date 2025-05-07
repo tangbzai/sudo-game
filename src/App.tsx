@@ -154,12 +154,14 @@ function App() {
         const { target } = e
         // @ts-expect-error
         const { classList, parentElement } = target
-        if (![...classList].includes(`${styles.unit}`)) {
-          return setCurrentPosition(undefined)
-        }
+        if (![...classList].includes(`${styles.unit}`)) return
         const index = [...parentElement.children].indexOf(target as any)
         const [targetY, targetX] = [index / 9, index % 9].map(Math.floor) as [SudoIndex, SudoIndex]
-        setCurrentPosition([targetY, targetX])
+        setCurrentPosition((old) => {
+          const [oldY, oldX] = old || []
+          if (targetY === oldY && targetX === oldX) return undefined
+          return [targetY, targetX]
+        })
       }}
     >
       {endTime && (
