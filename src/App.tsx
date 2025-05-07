@@ -1,34 +1,27 @@
-import {
-  createRef,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import styles from './App.module.css'
+import { createRef, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import styles from '@/App.module.css'
+import Clear from '@/assets/clear.svg'
+import Record from '@/assets/record.svg'
+import Revoke from '@/assets/revoke.svg'
+import Tips from '@/assets/tips.svg'
+import ControlBar from '@/components/ControlBar'
+import NumberBar from '@/components/NumberBar'
+import Timer from '@/components/Timer'
+import TipsBox from '@/components/TipsBox'
+import classnames from '@/utils/classnames'
 import {
   correctSudo,
   getSudoProblem,
   getUnitPossible,
-  SudoIndex,
+  type SudoIndex,
   sudoNodesCopy,
-  SudoNodesType,
+  type SudoNodesType,
   sudoProblemCopy,
-  SudoProblemType,
-  SudoValue,
-} from './utils/sudo'
-import Tips from './assets/tips.svg'
-import Clear from './assets/clear.svg'
-import Record from './assets/record.svg'
-import Revoke from './assets/revoke.svg'
-import classnames from './utils/classnames'
-import ControlBar from './components/ControlBar'
-import NumberBar from './components/NumberBar'
-import TipsBox from './components/TipsBox'
-import Timer from './components/Timer'
+  type SudoProblemType,
+  type SudoValue,
+} from '@/utils/sudo'
+import { timeFormat } from '@/utils/time'
 import TheEnd from './TheEnd'
-import { timeFormat } from './utils/time'
 
 // 撤回最多次数
 const RECORD_LENGTH = 5
@@ -50,8 +43,7 @@ function App() {
   // 填写模式
   const [fillPattern, setFillPattern] = useState<'normal' | 'note'>('normal')
   // 当前选中的位置
-  const [currentPosition, setCurrentPosition] =
-    useState<[SudoIndex, SudoIndex]>()
+  const [currentPosition, setCurrentPosition] = useState<[SudoIndex, SudoIndex]>()
   // 初始化
   const init = useCallback(() => {
     // 获取题目
@@ -60,9 +52,7 @@ function App() {
     console.log('生成耗时：', Date.now() - t.getTime(), 'ms')
     setSudoProblem(sudoProblem)
     setShowSudo(sudoProblem)
-    setSudoNotes(
-      new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined)))
-    )
+    setSudoNotes(new Array(9).fill(new Array(9).fill(new Array(9).fill(undefined))))
     setFillPattern('normal')
     recordList.current = []
   }, [])
@@ -79,9 +69,7 @@ function App() {
       // 正常模式或清空单元格
       if (fillPattern === 'normal' || num === null) {
         // 记录当前状态便于回退
-        recordList.current = recordList.current
-          .slice(-RECORD_LENGTH + 1)
-          .concat([showSudo])
+        recordList.current = recordList.current.slice(-RECORD_LENGTH + 1).concat([showSudo])
         const newProblem = sudoProblemCopy(showSudo)
         newProblem[y][x] = num
         setShowSudo(newProblem)
@@ -158,9 +146,7 @@ function App() {
 
   const [y, x] = currentPosition || []
   const heightLightNum =
-    typeof y === 'number' && typeof x === 'number'
-      ? showSudo[y][x] ?? undefined
-      : undefined
+    typeof y === 'number' && typeof x === 'number' ? (showSudo[y][x] ?? undefined) : undefined
   return (
     <div
       className={styles.app}
@@ -168,15 +154,14 @@ function App() {
         const { target } = e
         // @ts-expect-error
         const { classList, parentElement } = target
-        if (![...classList].includes(`${styles.unit}`)) {
-          return setCurrentPosition(undefined)
-        }
+        if (![...classList].includes(`${styles.unit}`)) return
         const index = [...parentElement.children].indexOf(target as any)
-        const [targetY, targetX] = [index / 9, index % 9].map(Math.floor) as [
-          SudoIndex,
-          SudoIndex
-        ]
-        setCurrentPosition([targetY, targetX])
+        const [targetY, targetX] = [index / 9, index % 9].map(Math.floor) as [SudoIndex, SudoIndex]
+        setCurrentPosition((old) => {
+          const [oldY, oldX] = old || []
+          if (targetY === oldY && targetX === oldX) return undefined
+          return [targetY, targetX]
+        })
       }}
     >
       {endTime && (
@@ -199,17 +184,12 @@ function App() {
                 key={`${ry}-${cx}`}
                 className={classnames(
                   styles.unit,
-                  !!sudoProblem[ry][cx] ? styles.immutable: '',
+                  !!sudoProblem[ry][cx] ? styles.immutable : '',
                   heightLightNum === num ? styles.heightLight : '',
                   y === ry && x === cx ? styles.curr : ''
                 )}
               >
-                {num ?? (
-                  <TipsBox
-                    className={styles.tips}
-                    numList={sudoNotes[ry][cx]}
-                  />
-                )}
+                {num ?? <TipsBox className={styles.tips} numList={sudoNotes[ry][cx]} />}
               </div>
             )
           })

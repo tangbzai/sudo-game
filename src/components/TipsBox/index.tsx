@@ -1,5 +1,5 @@
 import classnames from '@/utils/classnames'
-import { SudoValue } from '@/utils/sudo'
+import type { SudoValue } from '@/utils/sudo'
 import styles from './index.module.css'
 
 interface TipsBoxProps {
@@ -14,11 +14,7 @@ function TipsBox(props: TipsBoxProps) {
       {new Array(9).fill(0).map((_, index) => (
         <span
           key={index}
-          style={
-            numList.includes((index + 1) as SudoValue)
-              ? {}
-              : { visibility: 'hidden' }
-          }
+          style={numList.includes((index + 1) as SudoValue) ? {} : { visibility: 'hidden' }}
         >
           {index + 1}
         </span>
