@@ -1,5 +1,4 @@
-import { createRef, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
-import '@vitejs/plugin-react-swc'
+import { createRef, type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import styles from '@/App.module.css'
 import Clear from '@/assets/clear.svg'
 import Record from '@/assets/record.svg'
@@ -14,12 +13,12 @@ import {
   correctSudo,
   getSudoProblem,
   getUnitPossible,
-  SudoIndex,
+  type SudoIndex,
   sudoNodesCopy,
-  SudoNodesType,
+  type SudoNodesType,
   sudoProblemCopy,
-  SudoProblemType,
-  SudoValue,
+  type SudoProblemType,
+  type SudoValue,
 } from '@/utils/sudo'
 import { timeFormat } from '@/utils/time'
 import TheEnd from './TheEnd'
@@ -147,7 +146,7 @@ function App() {
 
   const [y, x] = currentPosition || []
   const heightLightNum =
-    typeof y === 'number' && typeof x === 'number' ? showSudo[y][x] ?? undefined : undefined
+    typeof y === 'number' && typeof x === 'number' ? (showSudo[y][x] ?? undefined) : undefined
   return (
     <div
       className={styles.app}

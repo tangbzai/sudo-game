@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import classnames from '@/utils/classnames'
 import styles from './index.module.css'
 

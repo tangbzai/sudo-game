@@ -2,7 +2,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useSta
 import { timeFormat } from '@/utils/time'
 import styles from './index.module.css'
 
-const Timer = forwardRef((props: {}, ref) => {
+const Timer = forwardRef((_, ref) => {
   const timer = useRef<number>()
   const [seconds, setSeconds] = useState(0)
 

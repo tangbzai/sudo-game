@@ -1,5 +1,5 @@
 import classnames from '@/utils/classnames'
-import { SudoValue } from '@/utils/sudo'
+import type { SudoValue } from '@/utils/sudo'
 import styles from './index.module.css'
 
 interface NumberBarProps {
