@@ -11,12 +11,12 @@ const DIFFICULTY: 'ease' | 'middle' | 'hard' = 'middle'
  * 获取一个随机顺序的 1-9 数组
  */
 function getFullNumBox() {
-  const arr: SudoGroupType = new Array(9).fill(0).map((_, index) => index + 1) as SudoGroupType
-  const result: SudoGroupType = []
-  while (arr.length) {
-    result.push(arr.splice(Math.floor(Math.random() * arr.length), 1)[0])
+  const arr: SudoGroupType = [1, 2, 3, 4, 5, 6, 7, 8, 9] as SudoGroupType
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
   }
-  return result
+  return arr
 }
 
 /**
