@@ -30,16 +30,26 @@ export function getUnitPossible(
   y: SudoIndex,
   x: SudoIndex
 ): SudoValue[] {
-  const arr: SudoGroupType = new Array(9).fill(0).map((_, index) => index + 1) as SudoGroupType
-  const exclude = new Set()
+  const arr: SudoGroupType = [1, 2, 3, 4, 5, 6, 7, 8, 9] satisfies SudoGroupType
+  const exclude = new Set<SudoValue | null>()
+
+  // 行、列、宫一次性遍历
   for (let i = 0; i < 9; i++) {
-    if (i !== x && rowPerspective[y][i]) exclude.add(rowPerspective[y][i])
-    if (i !== y && rowPerspective[i][x]) exclude.add(rowPerspective[i][x])
-    const [offsetY, offsetX] = [Math.floor(y / 3) * 3, Math.floor(x / 3) * 3]
-    const boxTarget = rowPerspective[offsetY + Math.floor(i / 3)][offsetX + Math.floor(i % 3)]
-    if (boxTarget) exclude.add(boxTarget)
+    // 同一行已填数字
+    const rowVal = rowPerspective[y][i]
+    if (rowVal !== null && i !== x) exclude.add(rowVal)
+
+    // 同一列已填数字
+    const colVal = rowPerspective[i][x]
+    if (colVal !== null && i !== y) exclude.add(colVal)
+
+    // 同一宫已填数字（使用更清晰的坐标转换）
+    const boxRow = Math.floor(y / 3) * 3 + Math.floor(i / 3)
+    const boxCol = Math.floor(x / 3) * 3 + (i % 3)
+    const boxVal = rowPerspective[boxRow]?.[boxCol]
+    if (boxVal !== null) exclude.add(boxVal)
   }
-  return arr.filter((num) => !exclude.has(num)) as SudoValue[]
+  return arr.filter((num): num is SudoValue => !exclude.has(num))
 }
 
 /**
