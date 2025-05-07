@@ -5,7 +5,7 @@ export type SudoValue = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
 export type SudoIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
 
 // 难度选项
-const DIFFICULTY: 'ease' | 'middle' | 'hard' = 'middle'
+const DIFFICULTY: 'easy' | 'middle' | 'hard' = 'middle'
 
 /**
  * 获取一个随机顺序的 1-9 数组
@@ -251,7 +251,7 @@ export function getSudoProblem(): SudoProblemType {
     // 解题成功
     if (problem && problemEqual(problem, fullProblem)) continue
     rowPerspective[y][x] = num
-    if (DIFFICULTY === 'ease') break
+    if (DIFFICULTY === 'easy') break
   }
   console.log(
     'numberCount:',
